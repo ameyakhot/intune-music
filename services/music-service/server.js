@@ -8,5 +8,5 @@ app.get("/", (req, res) => {
 });
 
 app.listen(port, () => {
-  console.log(`User service listening at http://localhost:${port}`);
+  console.log(`Music service listening at http://localhost:${port}`);
 });
