@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Socket.IO Client Test</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js" crossorigin="anonymous"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', (event) => {
+        const socket = io("http://localhost:3003");
+
+        socket.on("connect", () => {
+          console.log("Connected to server");
+
+          // Join a room
+          socket.emit("joinRoom", "testRoom");
+
+          // Listen for other users joining
+          socket.on("userJoined", (msg) => {
+            console.log(msg);
+          });
+
+          // Send a test message to the room
+          socket.emit("broadcastToRoom", {
+            roomId: "testRoom",
+            message: "Hello, room!",
+          });
+
+          // Listen for broadcast messages from the room
+          socket.on("broadcastMessage", (message) => {
+            console.log("Message from room:", message);
+          });
+        });
+
+        // Listen for the playAudio event to play music
+        // socket.emit('requestAudio', 'testRoom');
+        socket.on('playAudio', (data) => {
+            const audio = new Audio(data.url);
+            audio.play()
+              .then(() => console.log("Audio playing..."))
+              .catch(error => console.log("Error playing audio:", error));
+        });
+      });
+    </script>
+</head>
+<body>
+    <h1>Socket.IO Music Service Test</h1>
+</body>
+</html>

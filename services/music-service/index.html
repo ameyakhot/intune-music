@@ -1,0 +1,37 @@
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+  // Connect to the socket server
+  const socket = io();
+
+  // To join a room
+  function joinRoom(roomId) {
+    socket.emit('joinRoom', roomId);
+  }
+
+  // To leave a room
+  function leaveRoom(roomId) {
+    socket.emit('leaveRoom', roomId);
+  }
+
+  // To broadcast a message to a room
+  function broadcastMessage(roomId, message) {
+    socket.emit('broadcastToRoom', { roomId, message });
+  }
+
+  // Listening for events
+  socket.on('userJoined', (msg) => {
+    console.log(msg);
+    // Update UI accordingly
+  });
+
+  socket.on('userLeft', (msg) => {
+    console.log(msg);
+    // Update UI accordingly
+  });
+
+  socket.on('broadcastMessage', (message) => {
+    console.log(message);
+    // Handle the broadcast message (e.g., play music)
+  });
+</script>
