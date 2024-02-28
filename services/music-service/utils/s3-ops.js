@@ -46,10 +46,9 @@ exports.downloadFile = async (bucketName, objectKey) => {
   if (Body instanceof stream.Readable) {
     await pipeline(Body, fs.createWriteStream(downloadPath));
     console.log(`File downloaded successfully to ${downloadPath}`);
-    return true
+    return downloadPath
   } else {
     throw new Error("Downloaded Body is not a readable stream.");
-    return false
   }
 };
 

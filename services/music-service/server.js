@@ -13,7 +13,6 @@ const path = require("path");
 const app = express();
 const HOST = "http://localhost:3003";
 
-
 app.use(cors());
 app.use(express.static("public"));
 
@@ -60,9 +59,29 @@ io.on("connection", (socket) => {
   });
 
   // Audio broadcasting to the client endpoint
-  socket.on("requestAudio", (roomId) => {
-    const audioUrl = `${HOST}/sample.mp3`;
-    io.to(roomId).emit("playAudio", { url: audioUrl });
+  socket.on("requestAudio", async (data) => {
+    const { roomId, fileName } = data;
+    // Query the database for the key associated with fileName
+    const query = "SELECT key FROM song_index WHERE song_name = $1";
+    try {
+      const { rows } = await pool.query(query, [fileName]);
+      if (rows.length > 0) {
+        const objectKey = rows[0].key; // Assuming 'key' is the column name in your table
+        // Proceed to download the file from S3
+        const localFilePath = await downloadFile("moon-music-files", objectKey); // Ensure this is implemented to return the path
+        console.log(localFilePath); ///Users/maverick/Documents/Projects/InTune/services/music-service/public/338d39e0d715f422af67fdebda06f58c.mp3
+        // Construct the URL for the downloaded file
+        const fileUrl = `${HOST}/${localFilePath.split('/').pop()}`;
+        // Broadcast the URL to the room
+        io.to(roomId).emit("playAudio", { url: fileUrl });
+      } else {
+        console.error("File not found in database");
+        // Handle file not found scenario
+      }
+    } catch (error) {
+      console.error("Error handling requestAudio:", error);
+      // Handle errors, such as database query errors or download errors
+    }
   });
 
   socket.on("disconnect", () => {
@@ -85,11 +104,13 @@ app.get("/download-file", async (req, res) => {
 
   try {
     // Use your download function to download the file and get the local path
-    if(await downloadFile(bucketName, objectKey) == true){
-      res.send('File download successful.')
-    }
+    const localFilePath = await downloadFile(bucketName, objectKey);
 
-    
+    if (localFilePath) {
+      res.send("File download successful.");
+    } else {
+      res.send("File download failed.");
+    }
   } catch (error) {
     console.error("Error in file download:", error);
     res.status(500).send("Error downloading the file");
