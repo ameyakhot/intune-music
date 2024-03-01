@@ -1,4 +1,4 @@
-node-modules
+node_modules
 Confidential
 services/music-service/node_modules
 services/music-service/aws.env
