@@ -1,1 +1,6 @@
-/node-modules
+node-modules
+Confidential
+services/music-service/node_modules
+services/music-service/aws.env
+services/user-service/.env
+services/user-service/node_modules
